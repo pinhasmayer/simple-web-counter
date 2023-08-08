@@ -1,0 +1,1 @@
+Simple web counter service that counts POST requests and returns the counter on GET requests.
