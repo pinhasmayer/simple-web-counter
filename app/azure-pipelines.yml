@@ -1,3 +1,53 @@
 trigger:
-  - main
+- main
 
+variables:
+  dockerHubUsername: 'pmayer96'
+  dockerHubImageName: 'simple-web-counter-python'
+  imageName: '$(dockerHubUsername)/$(dockerHubImageName):$(Build.BuildId)'
+  ec2Instance: 'ec2-18-194-132-45.eu-central-1.compute.amazonaws.com'
+  ec2Username: 'centos'
+
+stages:
+- stage: Build
+  displayName: Build and push image
+  jobs:  
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'docker-hub-connection'
+        repository: '$(dockerHubUsername)/$(dockerHubImageName)'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        tags: '$(Build.BuildId)'
+
+- stage: Deploy
+  displayName: Deploy to EC2
+  jobs:
+  - job: Deploy
+    displayName: Deploy
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - checkout: none
+    - script: |
+        set -e
+        echo "Installing SSH client..."
+        sudo apt-get install -y ssh
+        echo "Creating SSH key file..."
+        echo "$privateKey" > id_rsa
+        chmod 600 id_rsa
+        echo "Deploying to EC2 instance..."
+        ssh -o StrictHostKeyChecking=no -i id_rsa $(ec2Username)@$(ec2Instance) "
+          docker stop counter-service || true
+          docker rm counter-service || true
+          docker pull $(imageName)
+          docker run -d -p 80:80 --name counter-service $(imageName)
+        "
+      displayName: SSH and Docker commands
+      env:
+        privateKey: $(privateKey)
