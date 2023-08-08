@@ -1,7 +1,5 @@
 trigger:
 - main
-pool:
-  name: local
 
 variables:
   dockerHubUsername: 'pmayer96'
