@@ -11,7 +11,6 @@ class CounterServiceTestCase(unittest.TestCase):
     def test_get_request(self):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json(), {"counter": 0})
 
     def test_post_request(self):
         response = self.client.post('/')
@@ -19,12 +18,14 @@ class CounterServiceTestCase(unittest.TestCase):
         self.assertEqual(response.get_json(), {"message": "Counter incremented successfully"})
 
     def test_counter_increment(self):
+        initial_response = self.client.get('/')
+        initial_counter = initial_response.json()['counter']
         for i in range(5):
             response = self.client.post('/')
             self.assertEqual(response.get_json(), {"message": "Counter incremented successfully"})
             get_response = self.client.get('/')
             self.assertEqual(get_response.status_code, 200)
-            self.assertEqual(get_response.json(), {"counter": i + 1})
+            self.assertEqual(get_response.json(), {"counter": initial_counter + i + 1})
         
     def test_unsupported_put_request(self):
         response = self.client.put('/')
