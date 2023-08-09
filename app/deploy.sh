@@ -1,5 +1,5 @@
 #!/bin/bash
-imageName = $1
+imageName = "$1"
 if docker ps -a --format "{{.Names}}" | grep -q "counter-service"; then
   echo "Container 'counter-service' found."
   docker stop counter-service || echo "Error stopping container 'counter-service'."
