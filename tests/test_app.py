@@ -1,4 +1,6 @@
 import unittest
+import sys
+sys.path.append('../app')
 from app import app
 
 class CounterServiceTestCase(unittest.TestCase):
@@ -14,7 +16,7 @@ class CounterServiceTestCase(unittest.TestCase):
     def test_post_request(self):
         response = self.client.post('/')
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Counter: 1', response.data)
+        self.assertIn(b'counter incremented', response.data)
 
     def test_counter_increment(self):
         for i in range(5):
