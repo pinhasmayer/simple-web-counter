@@ -19,7 +19,7 @@ class CounterServiceTestCase(unittest.TestCase):
 
     def test_counter_increment(self):
         initial_response = self.client.get('/')
-        initial_counter = initial_response.json()['counter']
+        initial_counter = initial_response.json["counter"]
         for i in range(5):
             response = self.client.post('/')
             self.assertEqual(response.json["message"], "Counter incremented successfully")
