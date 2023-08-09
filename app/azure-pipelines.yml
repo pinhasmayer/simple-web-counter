@@ -45,3 +45,18 @@ stages:
         sshEndpoint: 'ec2-ssh-connection'
         runOptions: 'commands'
         commands: 'bash scripts/deployment/deploy.sh $(imageName)'
+
+- stage: Test
+  displayName: Run Tests
+  jobs:
+  - job: Test
+    displayName: Run Tests
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - checkout: self
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.8'
+    - script: pip install -r requirements.txt
+    - script: python test_app.py
