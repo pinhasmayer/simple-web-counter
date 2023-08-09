@@ -58,8 +58,8 @@ stages:
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '3.8'
-    - script: pip install -r requirements.txt
-    - script: python test_app.py
+    - script: pip install -r app/requirements.txt
+    - script: python app/test_app.py
   
 - stage: SystemTest
   displayName: Run System Tests
@@ -74,5 +74,5 @@ stages:
       inputs:
         versionSpec: '3.8'
     - script: pip install requests
-    - script: python test_system.py
+    - script: python app/test_system.py
 
