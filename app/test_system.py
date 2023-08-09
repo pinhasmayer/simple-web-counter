@@ -10,7 +10,7 @@ class CounterServiceSystemTestCase(unittest.TestCase):
 
     def test_increment_counter(self):
         initial_response = requests.get(self.BASE_URL)
-        initial_counter = initial_response.json()['counter']
+        initial_counter = initial_response.json()["counter"]
         for i in range(5):
             post_response = requests.post(self.BASE_URL)
             self.assertEqual(post_response.status_code, 200)
