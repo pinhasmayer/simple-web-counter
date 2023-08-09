@@ -39,8 +39,7 @@ stages:
         sshEndpoint: 'ec2-ssh-connection'
         runOptions: 'commands'
         commands: |
-          docker ps -a | grep 'counter-service' > /dev/null 2>&1 || true
-          if [ $? -eq 0 ]; then
+          if docker ps -a --format '{{.Names}}' | grep -q 'counter-service'; then
             docker stop counter-service || true
             docker rm counter-service || true
           fi
