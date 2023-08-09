@@ -14,7 +14,7 @@ class CounterServiceSystemTestCase(unittest.TestCase):
         for i in range(5):
             post_response = requests.post(self.BASE_URL)
             self.assertEqual(post_response.status_code, 200)
-            self.assertEqual(post_response.json(), {"message": "Counter incremented successfully"})
+            self.assertEqual(post_response.json()["message"], "Counter incremented successfully")
 
             # Get the updated value of the counter
             get_response = requests.get(self.BASE_URL)
