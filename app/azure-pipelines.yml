@@ -39,7 +39,10 @@ stages:
         sshEndpoint: 'ec2-ssh-connection'
         runOptions: 'commands'
         commands: |
-          docker stop counter-service || true
-          docker rm counter-service || true
+          docker ps -a | grep 'counter-service' > /dev/null 2>&1
+          if [ $? -eq 0 ]; then
+            docker stop counter-service || true
+            docker rm counter-service || true
+          fi
           docker pull $(imageName)
           docker run -d -p 80:80 --name counter-service $(imageName)
