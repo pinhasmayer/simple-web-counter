@@ -46,8 +46,8 @@ stages:
         runOptions: 'commands'
         commands: 'bash scripts/deployment/deploy.sh $(imageName)'
 
-- stage: Test
-  displayName: Run Tests
+- stage: UnitTests
+  displayName: Run unit Tests
   jobs:
   - job: Test
     displayName: Run Tests
@@ -59,4 +59,20 @@ stages:
       inputs:
         versionSpec: '3.8'
     - script: pip install -r app/requirements.txt
-    - script: python app/test_app.py
+    - script: python tests/test_app.py
+  
+- stage: SystemTest
+  displayName: Run System Tests
+  jobs:
+  - job: SystemTest
+    displayName: Run System Tests
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - checkout: self
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.8'
+    - script: pip install requests
+    - script: python tests/test_system.py
+
