@@ -1,4 +1,9 @@
 import unittest
+import os
+
+print("Current working directory:", os.getcwd())
+print("Content of '../app':", os.listdir('../app'))
+
 import sys
 sys.path.append('../app')
 from app import app
