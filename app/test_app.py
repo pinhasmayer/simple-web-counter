@@ -1,8 +1,10 @@
 import unittest
-from app import app
+from app import app, counter
 
 class CounterServiceTestCase(unittest.TestCase):
     def setUp(self):
+        global counter # Declare counter as global
+        counter = 0    # Reset the counter before each test
         app.config['TESTING'] = True
         self.client = app.test_client()
 

@@ -7,16 +7,19 @@ class CounterServiceSystemTestCase(unittest.TestCase):
     def test_get_counter(self):
         response = requests.get(self.BASE_URL)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"counter": 6})
 
     def test_increment_counter(self):
-        response = requests.post(self.BASE_URL)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"message": "Counter incremented successfully"})
+        initial_response = requests.get(self.BASE_URL)
+        initial_counter = initial_response.json()['counter']
+        for i in range(5):
+            post_response = requests.post(self.BASE_URL)
+            self.assertEqual(post_response.status_code, 200)
+            self.assertEqual(post_response.json(), {"message": "Counter incremented successfully"})
 
-        response = requests.get(self.BASE_URL)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"counter": 1})
+            # Get the updated value of the counter
+            get_response = requests.get(self.BASE_URL)
+            self.assertEqual(get_response.status_code, 200)
+            self.assertEqual(get_response.json()['counter'], initial_counter + i + 1)
 
     def test_unsupported_put_request(self):
         response = requests.put(self.BASE_URL)
