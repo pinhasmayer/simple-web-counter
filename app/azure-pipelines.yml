@@ -34,20 +34,12 @@ stages:
       vmImage: 'ubuntu-latest'
     steps:
     - checkout: none
-    - script: |
-        set -e
-        echo "Installing SSH client..."
-        sudo apt-get install -y ssh
-        echo "Creating SSH key file..."
-        echo "$privateKey" > id_rsa
-        chmod 600 id_rsa
-        echo "Deploying to EC2 instance..."
-        ssh -o StrictHostKeyChecking=no -i id_rsa $(ec2Username)@$(ec2Instance) "
+    - task: SSH@0
+      inputs:
+        sshEndpoint: 'ec2-ssh-connection'
+        runOptions: 'commands'
+        commands: |
           docker stop counter-service || true
           docker rm counter-service || true
           docker pull $(imageName)
           docker run -d -p 80:80 --name counter-service $(imageName)
-        "
-      displayName: SSH and Docker commands
-      env:
-        privateKey: $(privateKey)
