@@ -1,0 +1,78 @@
+trigger:
+- counter-branch
+
+variables:
+  dockerHubUsername: 'pmayer96'
+  dockerHubImageName: 'simple-web-counter-python'
+  imageName: '$(dockerHubUsername)/$(dockerHubImageName):$(Build.BuildId)'
+  ec2Instance: 'ec2-18-194-132-45.eu-central-1.compute.amazonaws.com'
+  ec2Username: 'centos'
+
+stages:
+- stage: Build
+  displayName: Build and push image
+  jobs:  
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'docker-hub-connection'
+        repository: '$(dockerHubUsername)/$(dockerHubImageName)'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        tags: '$(Build.BuildId)'
+
+- stage: Deploy
+  displayName: Deploy to EC2
+  jobs:
+  - job: Deploy
+    displayName: Deploy
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - checkout: self
+    - task: CopyFilesOverSSH@0
+      inputs:
+        sshEndpoint: 'ec2-ssh-connection'
+        sourceFolder: 'app' # Folder containing the deploy.sh script
+        contents: 'deploy.sh'
+        targetFolder: 'scripts/deployment'
+    - task: SSH@0
+      inputs:
+        sshEndpoint: 'ec2-ssh-connection'
+        runOptions: 'commands'
+        commands: 'bash scripts/deployment/deploy.sh $(imageName)'
+
+- stage: UnitTests
+  displayName: Run unit Tests
+  jobs:
+  - job: Test
+    displayName: Run Tests
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - checkout: self
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.8'
+    - script: pip install -r app/requirements.txt
+    - script: python app/test_app.py
+  
+- stage: SystemTest
+  displayName: Run System Tests
+  jobs:
+  - job: SystemTest
+    displayName: Run System Tests
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - checkout: self
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.8'
+    - script: pip install requests
+    - script: python app/test_system.py
+
